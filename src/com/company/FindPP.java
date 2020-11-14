@@ -20,6 +20,42 @@ public class FindPP {
         }
     }
 
+    public FindPP(HashMap<LinkedList<String>, ArrayList<String>> biT, HashMap<LinkedList<String>, ArrayList<LinkedList<String>>> biCT, float Pbr, HashMap<String, Integer> problematic, HashSet<String> chang_t) {
+        biT.forEach((tEdgeNode, tValue) -> {
+            this.CPt_map = new HashMap<>();
+
+            if (biCT.get(tEdgeNode) != null) {
+                biCT.get(tEdgeNode).forEach((ctEdgeNode) -> {
+                    ArrayList<String> denominatorT_Value = new ArrayList<>(tValue);  //取得分母位置包含的t
+                    denominatorT_Value.retainAll(biT.get(ctEdgeNode));  //取2位置所交集的t
+
+                    ctEdgeNode.forEach((a_ctEdgeNode) -> {
+                        ArrayList<String> ctValueItem = this.CPt_map.getOrDefault(a_ctEdgeNode, new ArrayList<>());  //取出相同的key軌跡位置，將某個人(t的值放進去)
+                        ctValueItem.addAll(denominatorT_Value);
+                        this.CPt_map.put(a_ctEdgeNode, ctValueItem);
+                    });
+                });
+            }
+            //將相關的項目進行掃苗
+            CPt_map.forEach((a_ctEdgeNode, ctValueItem) -> {
+                //判斷計算大小
+                if (((float) ctValueItem.size() / tValue.size()) > Pbr) {
+                    //將有問題的t加入異常次數計算
+                    ctValueItem.forEach((someonePartData) -> {
+                        if (chang_t.contains(someonePartData)) {
+                            this.problematicTotal += 1;
+                        }
+                    });
+                }
+            });
+        });
+
+        for (String tPart : problematic.keySet()) {
+            if (!chang_t.contains(tPart)) {
+                this.problematicTotal += problematic.get(tPart);
+            }
+        }
+    }
 
     /*
      * 0：初始化計算

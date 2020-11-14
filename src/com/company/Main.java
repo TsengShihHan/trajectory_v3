@@ -20,7 +20,7 @@ public class Main {
         int gain = 0;  //計算gain次數(待check檢查總次數)
         ArrayList<LinkedList<LinkedList<String>>> checkPartList;
 
-        String inputFileName = "400.txt";  //輸入測試檔案名稱
+        String inputFileName = "test.txt";  //輸入測試檔案名稱
         final HashMap<String, LinkedList<String>> trajectoryData = getTrajectoryData(inputFileName);  //取得軌跡資料檔案(txt) EX:{t4=[a2, a3, b1], t5=[a3, a1, b1], t6=[a3, a1, b1], t7=[a3, b2, a1], t8=[a3, b2, b3], t1=[a1, b2, b3], t2=[b1, a2, b2, a3], t3=[a2, b3, a3]}
 
         long createBipartiteGraphStartTime = System.currentTimeMillis();   //獲取建立bipartite graph的開始時間
@@ -60,7 +60,7 @@ public class Main {
         long memory = runtime.totalMemory() - runtime.freeMemory();
 //        long end_memory = runtime.totalMemory() - runtime.freeMemory();
 
-        System.out.println("0.執行版本(v3)：到最後才加入空集合 + 不跟原先的計算項目數值做檢查是否包含的版本");
+        System.out.println("0.執行版本(v3)：到最後才加入空集合 + 不跟原先的計算項目數值做檢查是否包含的版本 + PruningStrategy1");
         System.out.println("1.建立bipartite graph的時間：" + (createBipartiteGraphEndTime - createBipartiteGraphStartTime) + "ms");
         System.out.println("2.建完bipartite graph後，一直到最終結束所花的時間：" + (programEndTime - createBipartiteGraphEndTime) + "ms");
         System.out.println("3.計算gain的總次數：" + gain + "次");
@@ -84,7 +84,7 @@ public class Main {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream("./input/Oden/avg_len5/" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream("./input/" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
             String str;
 
             while ((str = reader.readLine()) != null) {
@@ -116,11 +116,23 @@ public class Main {
         float maxU_gain = -1;
 
         for (LinkedList<LinkedList<String>> checkPart : checkPartList) {
+            HashSet<String> chang_t = new HashSet<>();  //PruningStrategy1不須計算的t項目
             float DenominatorData = (float) 0;  //公式中分母的計算累加值
             float U_gain;
 
+            //掃描需計算的t(PruningStrategy1)
+            checkPart.forEach((checkPartKey) -> {
+                if (!checkPartKey.isEmpty()) {
+                    chang_t.addAll(bipartiteData.biT.get(checkPartKey));
+                    //第二層位置所對應到的關聯位置包含的t
+                    bipartiteData.biCT.get(checkPartKey).forEach((correspondingCheckPart) -> {
+                        chang_t.addAll(bipartiteData.biT.get(correspondingCheckPart));
+                    });
+                }
+            });
+
             bipartiteData.update_biT_biCT(checkPart);  //將每個愈計算的checkPart進行計算，重建bipartite以及關聯表
-            FindPP findLoopPP = new FindPP(bipartiteData.new_biT, bipartiteData.new_biCT, Pbr, 1);  //二-1、掃描異常項目 check：0初始化/1loop計算
+            FindPP findLoopPP = new FindPP(bipartiteData.new_biT, bipartiteData.new_biCT, Pbr, findOrgPP.problematic, chang_t);  //二-1、掃描異常項目 加入PruningStrategy1 的計算
 
             for (String T_unifyingPerson_t : bipartiteData.biT.get(checkPart.get(0))) {
                 float denominatorMolecular = trajectoryData.get(T_unifyingPerson_t).size() - bipartiteData.unifying.size();  //公式中分母裡面的分子項目，為比較項目中t所包含的軌跡項目數量 扣除 移除的軌跡數
