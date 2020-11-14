@@ -125,9 +125,7 @@ public class Main {
                 if (!checkPartKey.isEmpty()) {
                     chang_t.addAll(bipartiteData.biT.get(checkPartKey));
                     //第二層位置所對應到的關聯位置包含的t
-                    bipartiteData.biCT.get(checkPartKey).forEach((correspondingCheckPart) -> {
-                        chang_t.addAll(bipartiteData.biT.get(correspondingCheckPart));
-                    });
+                    bipartiteData.biCT.get(checkPartKey).forEach((correspondingCheckPart) -> chang_t.addAll(bipartiteData.biT.get(correspondingCheckPart)));
                 }
             });
 
