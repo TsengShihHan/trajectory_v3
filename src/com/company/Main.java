@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.jar.JarOutputStream;
 
 public class Main {
     public static void main(String[] args) {
@@ -135,7 +134,7 @@ public class Main {
 
             chang_t.put(checkPart, tmp_chang_t);
         });
-        System.out.println("checkPartList：" + checkPartList);
+
         // 計算upper，取出最大的checkPart組合，以及紀錄全部checkPart的upper數值
         for (LinkedList<LinkedList<String>> checkPart : checkPartList) {
             int PS2_problematic = 0;  //紀錄不須計算的加總
@@ -174,7 +173,7 @@ public class Main {
             }
 
         }
-        System.out.println(max_upperCheckPart + ":" + max_upper);
+
         // 計算最大upper組合中的ugain，找出最大的ugain
         for (LinkedList<LinkedList<String>> checkPart : max_upperCheckPart) {
             float DenominatorData = (float) 0;  //公式中分母的計算累加值
@@ -199,7 +198,7 @@ public class Main {
         // 刪除小於"上面步驟找出ugain"的upper數值組合
         ArrayList<LinkedList<LinkedList<String>>> checkPart_upperMap_KeySet = new ArrayList<>();
         for (LinkedList<LinkedList<String>> checkPart_upperMap_Key : checkPart_upperMap.keySet()) {
-            if (checkPart_upperMap.get(checkPart_upperMap_Key) < max_upperForUgain) {
+            if (checkPart_upperMap.get(checkPart_upperMap_Key) >= max_upperForUgain) {
                 checkPart_upperMap_KeySet.add(checkPart_upperMap_Key);
             }
         }
@@ -224,6 +223,7 @@ public class Main {
                 maxCheckPart = checkPart;
             }
         }
+
         bipartiteData.unifying = new LinkedList<>(maxCheckPart.get(0));
         bipartiteData.unifying.removeAll(maxCheckPart.get(1));
         //更新原始軌跡表 (若看不懂，參見v2 到最後才加入空集合 + 不跟原先的計算項目數值做檢查是否包含的版本 中的456行)
