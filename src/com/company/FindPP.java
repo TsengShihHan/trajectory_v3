@@ -20,7 +20,7 @@ public class FindPP {
         }
     }
 
-    public FindPP(HashMap<LinkedList<String>, ArrayList<String>> biT, HashMap<LinkedList<String>, ArrayList<LinkedList<String>>> biCT, float Pbr, HashMap<String, Integer> problematic, HashSet<String> chang_t) {
+    public FindPP(HashMap<String, Integer> problematic, HashSet<String> chang_t, HashMap<LinkedList<String>, ArrayList<String>> biT, HashMap<LinkedList<String>, ArrayList<LinkedList<String>>> biCT, float Pbr) {
         biT.forEach((tEdgeNode, tValue) -> {
             this.CPt_map = new HashMap<>();
 

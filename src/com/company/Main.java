@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.jar.JarOutputStream;
 
 public class Main {
     public static void main(String[] args) {
@@ -60,7 +61,7 @@ public class Main {
         long memory = runtime.totalMemory() - runtime.freeMemory();
 //        long end_memory = runtime.totalMemory() - runtime.freeMemory();
 
-        System.out.println("0.執行版本(v3)：到最後才加入空集合 + 不跟原先的計算項目數值做檢查是否包含的版本 + PruningStrategy1");
+        System.out.println("0.執行版本(v3)：到最後才加入空集合 + 不跟原先的計算項目數值做檢查是否包含的版本 + PruningStrategy1 + PruningStrategy2");
         System.out.println("1.建立bipartite graph的時間：" + (createBipartiteGraphEndTime - createBipartiteGraphStartTime) + "ms");
         System.out.println("2.建完bipartite graph後，一直到最終結束所花的時間：" + (programEndTime - createBipartiteGraphEndTime) + "ms");
         System.out.println("3.計算gain的總次數：" + gain + "次");
@@ -112,25 +113,104 @@ public class Main {
      * 掃描待檢查組合項目找出最大Ugain數值
      * */
     private static void findMaxUgainPart(ArrayList<LinkedList<LinkedList<String>>> checkPartList, HashMap<String, LinkedList<String>> trajectoryData, Bipartite bipartiteData, FindPP findOrgPP, float Pbr) {
+        HashMap<LinkedList<LinkedList<String>>, HashSet<String>> chang_t = new HashMap<>();  //每個檢查點需計算的t項目
+        HashMap<LinkedList<LinkedList<String>>, Float> checkPart_upperMap = new HashMap<>();  //每個檢查點的upper的數值
+        ArrayList<LinkedList<LinkedList<String>>> max_upperCheckPart = new ArrayList<>();  //紀錄擁有最大upper的CheckPart組合，由於可能會有一樣的，因此使用ArrayList儲存
         LinkedList<LinkedList<String>> maxCheckPart = new LinkedList<>();
-        float maxU_gain = -1;
 
-        for (LinkedList<LinkedList<String>> checkPart : checkPartList) {
-            HashSet<String> chang_t = new HashSet<>();  //PruningStrategy1不須計算的t項目
-            float DenominatorData = (float) 0;  //公式中分母的計算累加值
-            float U_gain;
+        float max_upper = (float) -1.0;
+        float max_upperForUgain = (float) -1.0;  //找出最大upper組合中，最大的Ugain數值
+        float maxU_gain = (float) -1.0;
 
-            //掃描需計算的t(PruningStrategy1)
+        // 掃描所有關聯
+        checkPartList.forEach((checkPart) -> {
+            HashSet<String> tmp_chang_t = new HashSet<>();  //暫存 PruningStrategy1不須計算的t項目
             checkPart.forEach((checkPartKey) -> {
                 if (!checkPartKey.isEmpty()) {
-                    chang_t.addAll(bipartiteData.biT.get(checkPartKey));
+                    tmp_chang_t.addAll(bipartiteData.biT.get(checkPartKey));
                     //第二層位置所對應到的關聯位置包含的t
-                    bipartiteData.biCT.get(checkPartKey).forEach((correspondingCheckPart) -> chang_t.addAll(bipartiteData.biT.get(correspondingCheckPart)));
+                    bipartiteData.biCT.get(checkPartKey).forEach((correspondingCheckPart) -> tmp_chang_t.addAll(bipartiteData.biT.get(correspondingCheckPart)));
                 }
             });
 
+            chang_t.put(checkPart, tmp_chang_t);
+        });
+        System.out.println("checkPartList：" + checkPartList);
+        // 計算upper，取出最大的checkPart組合，以及紀錄全部checkPart的upper數值
+        for (LinkedList<LinkedList<String>> checkPart : checkPartList) {
+            int PS2_problematic = 0;  //紀錄不須計算的加總
+            float DenominatorData = (float) 0;  //公式中分母的計算累加值
+            float upper;
+
+            bipartiteData.update_unifying(checkPart);  //找出刪除的個數
+
+            //計算PS2_problematic總數
+            for (Map.Entry<String, Integer> entry : findOrgPP.problematic.entrySet()) {
+                String t = entry.getKey();
+                Integer t_problematicCount = entry.getValue();
+                //如果t不是在需計算的項目，就是不必計算的項目，因此更新加總
+                if (!chang_t.get(checkPart).contains(t)) {
+                    PS2_problematic += t_problematicCount;
+                }
+            }
+
+            //計算upper數值
+            for (String T_unifyingPerson_t : bipartiteData.biT.get(checkPart.get(0))) {
+                float denominatorMolecular = trajectoryData.get(T_unifyingPerson_t).size() - bipartiteData.unifying.size();  //公式中分母裡面的分子項目，為比較項目中t所包含的軌跡項目數量 扣除 移除的軌跡數
+                float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
+                DenominatorData += (1 - ((denominatorMolecular * (denominatorMolecular - 1)) / (denominatorDenominator * (denominatorDenominator - 1))));
+            }
+            upper = ((float) (findOrgPP.problematicTotal - PS2_problematic) / findOrgPP.problematicTotal) * ((float) 1 / DenominatorData);
+            checkPart_upperMap.put(checkPart, upper);
+
+            if (max_upper < upper) {
+                max_upper = upper;
+                max_upperCheckPart.clear();
+                max_upperCheckPart.add(checkPart);
+
+            } else if (max_upper == upper) {
+                max_upperCheckPart.add(checkPart);
+
+            }
+
+        }
+        System.out.println(max_upperCheckPart + ":" + max_upper);
+        // 計算最大upper組合中的ugain，找出最大的ugain
+        for (LinkedList<LinkedList<String>> checkPart : max_upperCheckPart) {
+            float DenominatorData = (float) 0;  //公式中分母的計算累加值
+            float U_gain;
+
             bipartiteData.update_biT_biCT(checkPart);  //將每個愈計算的checkPart進行計算，重建bipartite以及關聯表
-            FindPP findLoopPP = new FindPP(bipartiteData.new_biT, bipartiteData.new_biCT, Pbr, findOrgPP.problematic, chang_t);  //二-1、掃描異常項目 加入PruningStrategy1 的計算
+            FindPP findLoopPP = new FindPP(findOrgPP.problematic, chang_t.get(checkPart), bipartiteData.new_biT, bipartiteData.new_biCT, Pbr);  //二-1、掃描異常項目 加入PruningStrategy1 的計算
+
+            for (String T_unifyingPerson_t : bipartiteData.biT.get(checkPart.get(0))) {
+                float denominatorMolecular = trajectoryData.get(T_unifyingPerson_t).size() - bipartiteData.unifying.size();  //公式中分母裡面的分子項目，為比較項目中t所包含的軌跡項目數量 扣除 移除的軌跡數
+                float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
+                DenominatorData += (1 - ((denominatorMolecular * (denominatorMolecular - 1)) / (denominatorDenominator * (denominatorDenominator - 1))));
+            }
+            U_gain = ((float) (findOrgPP.problematicTotal - findLoopPP.problematicTotal) / findOrgPP.problematicTotal) * ((float) 1 / DenominatorData);
+
+            if (maxU_gain < U_gain) {
+                max_upperForUgain = U_gain;
+
+            }
+        }
+
+        // 刪除小於"上面步驟找出ugain"的upper數值組合
+        ArrayList<LinkedList<LinkedList<String>>> checkPart_upperMap_KeySet = new ArrayList<>();
+        for (LinkedList<LinkedList<String>> checkPart_upperMap_Key : checkPart_upperMap.keySet()) {
+            if (checkPart_upperMap.get(checkPart_upperMap_Key) < max_upperForUgain) {
+                checkPart_upperMap_KeySet.add(checkPart_upperMap_Key);
+            }
+        }
+
+        // 重新計算找出真正最大的ugain組合
+        for (LinkedList<LinkedList<String>> checkPart : checkPart_upperMap_KeySet) {
+            float DenominatorData = (float) 0;  //公式中分母的計算累加值
+            float U_gain;
+
+            bipartiteData.update_biT_biCT(checkPart);  //將每個愈計算的checkPart進行計算，重建bipartite以及關聯表
+            FindPP findLoopPP = new FindPP(findOrgPP.problematic, chang_t.get(checkPart), bipartiteData.new_biT, bipartiteData.new_biCT, Pbr);  //二-1、掃描異常項目 加入PruningStrategy1 的計算
 
             for (String T_unifyingPerson_t : bipartiteData.biT.get(checkPart.get(0))) {
                 float denominatorMolecular = trajectoryData.get(T_unifyingPerson_t).size() - bipartiteData.unifying.size();  //公式中分母裡面的分子項目，為比較項目中t所包含的軌跡項目數量 扣除 移除的軌跡數

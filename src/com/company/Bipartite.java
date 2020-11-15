@@ -10,7 +10,7 @@ public class Bipartite {
     public HashMap<LinkedList<String>, ArrayList<LinkedList<String>>> biCT = new HashMap<>();  //Bipartite對應投影的關聯
     public HashMap<LinkedList<String>, ArrayList<String>> new_biT;
     public HashMap<LinkedList<String>, ArrayList<LinkedList<String>>> new_biCT;
-    public LinkedList<String> unifying;
+    public LinkedList<String> unifying;  //儲存刪除的個數
 
 
     public Bipartite(HashMap<String, LinkedList<String>> trajectoryData) {
@@ -135,6 +135,19 @@ public class Bipartite {
                 this.new_biCT.put(CT_part, a);
 
             });
+        }
+    }
+
+    /*
+     * 更新重建biT、biCT
+     * */
+    public void update_unifying(LinkedList<LinkedList<String>> checkPart) {
+        this.unifying = new LinkedList<>(checkPart.get(0));
+        LinkedList<String> with = new LinkedList<>(checkPart.get(1));
+
+        if (!with.isEmpty()) {
+            this.unifying.removeAll(with);  //取出差集項目，移除相同值，剩餘值為欲從原始軌跡中移除的項目
+
         }
     }
 }
