@@ -64,14 +64,14 @@ public class Main {
         System.out.println("1.建立bipartite graph的時間：" + (createBipartiteGraphEndTime - createBipartiteGraphStartTime) + "ms");
         System.out.println("2.建完bipartite graph後，一直到最終結束所花的時間：" + (programEndTime - createBipartiteGraphEndTime) + "ms");
         System.out.println("3.計算gain的總次數：" + gain + "次");
-//        System.out.println("4.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；" + getTrajectoryData(inputFileName));
-        System.out.println("4.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；");
-//        System.out.println("5.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
-        System.out.println("5.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；");
-//        System.out.println("6.原始 #locations：\t\t\t" + locationsCount(new Bipartite(getTrajectoryData(inputFileName)).biT) + "個；" + new Bipartite(getTrajectoryData(inputFileName)).biT);
-        System.out.println("6.原始 #locations：\t\t\t" + locationsCount(new Bipartite(getTrajectoryData(inputFileName)).biT) + "個；");
-//        System.out.println("7.最後有多少 #locations：\t" + locationsCount(bipartiteData.biT) + "個；" + bipartiteData.biT);
-        System.out.println("7.最後有多少 #locations：\t" + locationsCount(bipartiteData.biT) + "個；");
+//        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
+        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；");
+//        System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；" + getTrajectoryData(inputFileName));
+        System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；");
+//        System.out.println("6.最後有多少 #locations：\t" + locationsCount(bipartiteData.biT) + "個；" + bipartiteData.biT);
+        System.out.println("6.最後有多少 #locations：\t" + locationsCount(bipartiteData.biT) + "個；");
+//        System.out.println("7.原始 #locations：\t\t\t" + locationsCount(new Bipartite(getTrajectoryData(inputFileName)).biT) + "個；" + new Bipartite(getTrajectoryData(inputFileName)).biT);
+        System.out.println("7.原始 #locations：\t\t\t" + locationsCount(new Bipartite(getTrajectoryData(inputFileName)).biT) + "個；");
         System.out.println("8.所需記憶體空間：" + memory + "bytes");
     }
 
