@@ -13,9 +13,13 @@ public class FindPP {
     public FindPP(HashMap<LinkedList<String>, ArrayList<String>> biT, HashMap<LinkedList<String>, ArrayList<LinkedList<String>>> biCT, float Pbr, Integer check) {
         switch (check) {
             //0為初始化跑的計算
-            case 0 -> initialization(biT, biCT, Pbr);
+            case 0 :
+                initialization(biT, biCT, Pbr);
+                break;
             //1為不斷重複計算的函數
-            case 1 -> loopCalculation(biT, biCT, Pbr);
+            case 1 :
+                loopCalculation(biT, biCT, Pbr);
+                break;
 
         }
     }

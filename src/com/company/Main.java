@@ -20,7 +20,7 @@ public class Main {
         int gain = 0;  //計算gain次數(待check檢查總次數)
         ArrayList<LinkedList<LinkedList<String>>> checkPartList;
 
-        String inputFileName = "test.txt";  //輸入測試檔案名稱
+        String inputFileName = "400.txt";  //輸入測試檔案名稱
         final HashMap<String, LinkedList<String>> trajectoryData = getTrajectoryData(inputFileName);  //取得軌跡資料檔案(txt) EX:{t4=[a2, a3, b1], t5=[a3, a1, b1], t6=[a3, a1, b1], t7=[a3, b2, a1], t8=[a3, b2, b3], t1=[a1, b2, b3], t2=[b1, a2, b2, a3], t3=[a2, b3, a3]}
 
         long createBipartiteGraphStartTime = System.currentTimeMillis();   //獲取建立bipartite graph的開始時間
@@ -84,7 +84,7 @@ public class Main {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream("./input/" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream("./input/Gowalla/avg_len3/" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
             String str;
 
             while ((str = reader.readLine()) != null) {
