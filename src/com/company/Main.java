@@ -113,7 +113,7 @@ public class Main {
      * */
     private static void findMaxUgainPart(ArrayList<LinkedList<LinkedList<String>>> checkPartList, HashMap<String, LinkedList<String>> trajectoryData, Bipartite bipartiteData, FindPP findOrgPP, float Pbr) {
         LinkedList<LinkedList<String>> maxCheckPart = new LinkedList<>();
-        float maxU_gain = -1;
+        float maxU_gain = -10;
 
         for (LinkedList<LinkedList<String>> checkPart : checkPartList) {
             float DenominatorData = (float) 0;  //公式中分母的計算累加值
