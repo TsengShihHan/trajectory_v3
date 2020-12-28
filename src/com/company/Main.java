@@ -20,7 +20,7 @@ public class Main {
         int gain = 0;  //計算gain次數(待check檢查總次數)
         ArrayList<LinkedList<LinkedList<String>>> checkPartList;
 
-        String inputFileName = "400.txt";  //輸入測試檔案名稱
+        String inputFileName = "1000.txt";  //輸入測試檔案名稱
         final HashMap<String, LinkedList<String>> trajectoryData = getTrajectoryData(inputFileName);  //取得軌跡資料檔案(txt) EX:{t4=[a2, a3, b1], t5=[a3, a1, b1], t6=[a3, a1, b1], t7=[a3, b2, a1], t8=[a3, b2, b3], t1=[a1, b2, b3], t2=[b1, a2, b2, a3], t3=[a2, b3, a3]}
 
         long createBipartiteGraphStartTime = System.currentTimeMillis();   //獲取建立bipartite graph的開始時間
@@ -64,7 +64,7 @@ public class Main {
         System.out.println("1.建立bipartite graph的時間：" + (createBipartiteGraphEndTime - createBipartiteGraphStartTime) + "ms");
         System.out.println("2.建完bipartite graph後，一直到最終結束所花的時間：" + (programEndTime - createBipartiteGraphEndTime) + "ms");
         System.out.println("3.計算gain的總次數：" + gain + "次");
-//        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
+        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
         System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；");
 //        System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；" + getTrajectoryData(inputFileName));
         System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；");
@@ -84,7 +84,7 @@ public class Main {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream("./input/Gowalla/avg_len3/" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream("E:\\Projects\\trajectory testing data\\v3_testData\\" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
             String str;
 
             while ((str = reader.readLine()) != null) {
@@ -157,8 +157,13 @@ public class Main {
             for (String T_unifyingPerson_t : bipartiteData.biT.get(checkPart.get(0))) {
                 float denominatorMolecular = trajectoryData.get(T_unifyingPerson_t).size() - bipartiteData.unifying.size();  //公式中分母裡面的分子項目，為比較項目中t所包含的軌跡項目數量 扣除 移除的軌跡數
                 float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
-                DenominatorData += (1 - ((denominatorMolecular * (denominatorMolecular - 1)) / (denominatorDenominator * (denominatorDenominator - 1))));
+                DenominatorData += (1.0f - ((denominatorMolecular * (denominatorMolecular - 1.0f)) / (denominatorDenominator * (denominatorDenominator - 1.0f))));
+                if (Float.isNaN(DenominatorData)) {
+                    DenominatorData = 0.0f;
+                }
+//                System.out.println("測試：" + 0.0f + (1.0f - ((0.0f * (0.0f - 1.0f)) / (1.0f * (1.0f - 1.0f)))));
             }
+//            System.out.println("(" + "(" + findOrgPP.problematicTotal + "-" + PS2_problematic + ")" + "/" + findOrgPP.problematicTotal + ") * (1/" + DenominatorData + ")");
             upper = ((float) (findOrgPP.problematicTotal - PS2_problematic) / findOrgPP.problematicTotal) * ((float) 1 / DenominatorData);
             checkPart_upperMap.put(checkPart, upper);
 
@@ -215,6 +220,9 @@ public class Main {
                 float denominatorMolecular = trajectoryData.get(T_unifyingPerson_t).size() - bipartiteData.unifying.size();  //公式中分母裡面的分子項目，為比較項目中t所包含的軌跡項目數量 扣除 移除的軌跡數
                 float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
                 DenominatorData += (1 - ((denominatorMolecular * (denominatorMolecular - 1)) / (denominatorDenominator * (denominatorDenominator - 1))));
+                if (Float.isNaN(DenominatorData)) {
+                    DenominatorData = 0.0f;
+                }
             }
             U_gain = ((float) (findOrgPP.problematicTotal - findLoopPP.problematicTotal) / findOrgPP.problematicTotal) * ((float) 1 / DenominatorData);
 
