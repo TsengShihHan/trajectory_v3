@@ -126,6 +126,10 @@ public class Main {
                 float denominatorMolecular = trajectoryData.get(T_unifyingPerson_t).size() - bipartiteData.unifying.size();  //公式中分母裡面的分子項目，為比較項目中t所包含的軌跡項目數量 扣除 移除的軌跡數
                 float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
                 DenominatorData += (1 - ((denominatorMolecular * (denominatorMolecular - 1)) / (denominatorDenominator * (denominatorDenominator - 1))));
+                //分母0值判斷
+                if (Float.isNaN(DenominatorData)) {
+                    DenominatorData = 1.0f;
+                }
             }
             U_gain = ((float) (findOrgPP.problematicTotal - findLoopPP.problematicTotal) / findOrgPP.problematicTotal) * ((float) 1 / DenominatorData);
 
