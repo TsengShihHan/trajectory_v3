@@ -64,7 +64,7 @@ public class Main {
         System.out.println("1.建立bipartite graph的時間：" + (createBipartiteGraphEndTime - createBipartiteGraphStartTime) + "ms");
         System.out.println("2.建完bipartite graph後，一直到最終結束所花的時間：" + (programEndTime - createBipartiteGraphEndTime) + "ms");
         System.out.println("3.計算gain的總次數：" + gain + "次");
-        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
+//        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
         System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；");
 //        System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；" + getTrajectoryData(inputFileName));
         System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；");
@@ -84,7 +84,7 @@ public class Main {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream("E:\\Projects\\trajectory testing data\\v3_testData\\" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Users\\TSENG-SHIH-HAN\\Documents\\v3_testData\\1230\\Oden\\avg_len5\\" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
             String str;
 
             while ((str = reader.readLine()) != null) {
@@ -159,7 +159,7 @@ public class Main {
                 float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
                 DenominatorData += (1.0f - ((denominatorMolecular * (denominatorMolecular - 1.0f)) / (denominatorDenominator * (denominatorDenominator - 1.0f))));
                 if (Float.isNaN(DenominatorData)) {
-                    DenominatorData = 0.0f;
+                    DenominatorData = 1.0f;
                 }
 //                System.out.println("測試：" + 0.0f + (1.0f - ((0.0f * (0.0f - 1.0f)) / (1.0f * (1.0f - 1.0f)))));
             }
@@ -221,7 +221,7 @@ public class Main {
                 float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
                 DenominatorData += (1 - ((denominatorMolecular * (denominatorMolecular - 1)) / (denominatorDenominator * (denominatorDenominator - 1))));
                 if (Float.isNaN(DenominatorData)) {
-                    DenominatorData = 0.0f;
+                    DenominatorData = 1.0f;
                 }
             }
             U_gain = ((float) (findOrgPP.problematicTotal - findLoopPP.problematicTotal) / findOrgPP.problematicTotal) * ((float) 1 / DenominatorData);
