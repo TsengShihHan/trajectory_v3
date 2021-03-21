@@ -90,51 +90,59 @@ public class Bipartite {
         if (!with.isEmpty()) {
             this.unifying.removeAll(with);  //取出差集項目，移除相同值，剩餘值為欲從原始軌跡中移除的項目
             ArrayList<String> tem_biT_unifyingList = new ArrayList<>(this.biT.get(checkPart.get(0))); //取出比較軌跡路徑包含的t(某個人) ex.[t5, t6, t7]
-            ArrayList<LinkedList<String>> tem_biCT_unifyingList = new ArrayList<>(this.biCT.get(checkPart.get(0)));  //取出比較軌跡路徑所對應的投影位置 if[a3, a1]，對應是 [[b1], [b2]]
+            ArrayList<LinkedList<String>> tem_biCT_unifyingList = new ArrayList<>(this.biCT.getOrDefault(checkPart.get(0), new ArrayList<>()));  //取出比較軌跡路徑所對應的投影位置 if[a3, a1]，對應是 [[b1], [b2]]
             ArrayList<String> tem_biT_value = new ArrayList<>(this.biT.get(checkPart.get(1)));
-            ArrayList<LinkedList<String>> tem_biCT_value = new ArrayList<>(this.biCT.get(checkPart.get(1)));  //取出比較軌跡路徑所對應的投影位置
+            ArrayList<LinkedList<String>> tem_biCT_value = new ArrayList<>(this.biCT.getOrDefault(checkPart.get(1), new ArrayList<>()));  //取出比較軌跡路徑所對應的投影位置
 
             //移除愈刪除的關聯項目
             this.new_biT.remove(checkPart.get(0));
             this.new_biCT.remove(checkPart.get(0));
             //加入移除的value項目給新的
             tem_biT_value.addAll(tem_biT_unifyingList);
-            tem_biCT_unifyingList.forEach((biCT_Item) -> {
-                if (!tem_biCT_value.contains(biCT_Item)) {
-                    tem_biCT_value.add(biCT_Item);
-                }
-            });
+            //edge更新
+            if (!tem_biCT_unifyingList.isEmpty()) {
+                tem_biCT_unifyingList.forEach((biCT_Item) -> {
+                    if (!tem_biCT_value.contains(biCT_Item)) {
+                        tem_biCT_value.add(biCT_Item);
+                    }
+                });
+                this.new_biCT.put(checkPart.get(1), tem_biCT_value);
+
+                //更新對應的連結
+                tem_biCT_unifyingList.forEach((CT_part) -> {
+                    ArrayList<LinkedList<String>> a = new ArrayList<>(new_biCT.get(CT_part));  //a是暫存變數命名....不知道要命甚麼，取得關聯投影過去的位置// (if[a3, a1]，對應是 [[b1], [b2]]，要把b1、b2有連給[a3, a1]的項目移除)
+                    a.remove(checkPart.get(0));
+                    //有包含項目的話就跳過
+                    if (!a.contains(checkPart.get(1))) {
+                        a.add(checkPart.get(1));
+                    }
+
+                    this.new_biCT.put(CT_part, a);
+
+                });
+            }
+
 
             //更新進去
             this.new_biT.put(checkPart.get(1), tem_biT_value);
-            this.new_biCT.put(checkPart.get(1), tem_biCT_value);
 
-            //更新對應的連結
-            tem_biCT_unifyingList.forEach((CT_part) -> {
-                ArrayList<LinkedList<String>> a = new ArrayList<>(new_biCT.get(CT_part));  //a是暫存變數命名....不知道要命甚麼，取得關聯投影過去的位置// (if[a3, a1]，對應是 [[b1], [b2]]，要把b1、b2有連給[a3, a1]的項目移除)
-                a.remove(checkPart.get(0));
-                //有包含項目的話就跳過
-                if (!a.contains(checkPart.get(1))) {
-                    a.add(checkPart.get(1));
-                }
-
-                this.new_biCT.put(CT_part, a);
-
-            });
 
         } else {
-            ArrayList<LinkedList<String>> tem_biCT_unifyingList = new ArrayList<>(this.biCT.get(checkPart.get(0)));  //取出比較軌跡路徑所對應的投影位置
+            ArrayList<LinkedList<String>> tem_biCT_unifyingList = new ArrayList<>(this.biCT.getOrDefault(checkPart.get(0), new ArrayList<>()));  //取出比較軌跡路徑所對應的投影位置
 
             this.new_biT.remove(checkPart.get(0));
-            this.new_biCT.remove(checkPart.get(0));
 
-            //更新對應的連結
-            tem_biCT_unifyingList.forEach((CT_part) -> {
-                ArrayList<LinkedList<String>> a = new ArrayList<>(new_biCT.get(CT_part));
-                a.remove(checkPart.get(0));
-                this.new_biCT.put(CT_part, a);
+            if (!tem_biCT_unifyingList.isEmpty()) {
+                this.new_biCT.remove(checkPart.get(0));
 
-            });
+                //更新對應的連結
+                tem_biCT_unifyingList.forEach((CT_part) -> {
+                    ArrayList<LinkedList<String>> a = new ArrayList<>(new_biCT.get(CT_part));
+                    a.remove(checkPart.get(0));
+                    this.new_biCT.put(CT_part, a);
+
+                });
+            }
         }
     }
 

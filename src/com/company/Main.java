@@ -20,7 +20,7 @@ public class Main {
         int gain = 0;  //計算gain次數(待check檢查總次數)
         ArrayList<LinkedList<LinkedList<String>>> checkPartList;
 
-        String inputFileName = "1000.txt";  //輸入測試檔案名稱
+        String inputFileName = "test.txt";  //輸入測試檔案名稱
         final HashMap<String, LinkedList<String>> trajectoryData = getTrajectoryData(inputFileName);  //取得軌跡資料檔案(txt) EX:{t4=[a2, a3, b1], t5=[a3, a1, b1], t6=[a3, a1, b1], t7=[a3, b2, a1], t8=[a3, b2, b3], t1=[a1, b2, b3], t2=[b1, a2, b2, a3], t3=[a2, b3, a3]}
 
         long createBipartiteGraphStartTime = System.currentTimeMillis();   //獲取建立bipartite graph的開始時間
@@ -29,7 +29,7 @@ public class Main {
 
         while (true) {
             FindPP findOrgPP = new FindPP(bipartiteData.biT, bipartiteData.biCT, Pbr, 0);  //二-1、掃描異常項目 check：0初始化/1loop計算
-
+//            System.out.println("Total：" + findOrgPP.problematicTotal);
             if (findOrgPP.problematicTotal.equals(0)) {
                 break;
 
@@ -84,7 +84,7 @@ public class Main {
         BufferedReader reader = null;
 
         try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream("E:\\Projects\\trajectory testing data\\v3_testData\\" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(".\\input\\" + inputFileName), StandardCharsets.UTF_8)); // 指定讀取文件的編碼格式，以免出現中文亂碼
             String str;
 
             while ((str = reader.readLine()) != null) {
@@ -127,8 +127,10 @@ public class Main {
             checkPart.forEach((checkPartKey) -> {
                 if (!checkPartKey.isEmpty()) {
                     tmp_chang_t.addAll(bipartiteData.biT.get(checkPartKey));
-                    //第二層位置所對應到的關聯位置包含的t
-                    bipartiteData.biCT.get(checkPartKey).forEach((correspondingCheckPart) -> tmp_chang_t.addAll(bipartiteData.biT.get(correspondingCheckPart)));
+                    if (bipartiteData.biCT.get(checkPartKey) != null) {
+                        //第二層位置所對應到的關聯位置包含的t
+                        bipartiteData.biCT.get(checkPartKey).forEach((correspondingCheckPart) -> tmp_chang_t.addAll(bipartiteData.biT.get(correspondingCheckPart)));
+                    }
                 }
             });
 
@@ -178,7 +180,7 @@ public class Main {
             }
 
         }
-
+//        System.out.println(checkPart_upperMap.size());
         // 計算最大upper組合中的ugain，找出最大的ugain
         for (LinkedList<LinkedList<String>> checkPart : max_upperCheckPart) {
             float DenominatorData = (float) 0;  //公式中分母的計算累加值
@@ -207,7 +209,8 @@ public class Main {
                 checkPart_upperMap_KeySet.add(checkPart_upperMap_Key);
             }
         }
-
+//        System.out.println(checkPart_upperMap_KeySet.size());
+//        System.out.println("-------------");
         // 重新計算找出真正最大的ugain組合
         for (LinkedList<LinkedList<String>> checkPart : checkPart_upperMap_KeySet) {
             float DenominatorData = (float) 0;  //公式中分母的計算累加值
