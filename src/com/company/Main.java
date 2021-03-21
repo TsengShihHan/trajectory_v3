@@ -20,7 +20,7 @@ public class Main {
         int gain = 0;  //計算gain次數(待check檢查總次數)
         ArrayList<LinkedList<LinkedList<String>>> checkPartList;
 
-        String inputFileName = "test.txt";  //輸入測試檔案名稱
+        String inputFileName = "1000.txt";  //輸入測試檔案名稱
         final HashMap<String, LinkedList<String>> trajectoryData = getTrajectoryData(inputFileName);  //取得軌跡資料檔案(txt) EX:{t4=[a2, a3, b1], t5=[a3, a1, b1], t6=[a3, a1, b1], t7=[a3, b2, a1], t8=[a3, b2, b3], t1=[a1, b2, b3], t2=[b1, a2, b2, a3], t3=[a2, b3, a3]}
 
         long createBipartiteGraphStartTime = System.currentTimeMillis();   //獲取建立bipartite graph的開始時間
@@ -47,9 +47,9 @@ public class Main {
                 checkPartList = findOrgPP.combinationCheckWithEmpty(findOrgPP.problematicDenominatorKey, bipartiteData.biT.keySet());  //二-2、組合代檢查項目
 
             }
-            gain += checkPartList.size();  //計算gain次數(待check檢查總次數)
+//            gain += checkPartList.size();  //計算gain次數(待check檢查總次數)
 
-            findMaxUgainPart(checkPartList, trajectoryData, bipartiteData, findOrgPP, Pbr);  //三、掃描全部組合找出最大Ugain項目，並且更新原始表格
+            gain += findMaxUgainPart(checkPartList, trajectoryData, bipartiteData, findOrgPP, Pbr);  //三、掃描全部組合找出最大Ugain項目，並且更新原始表格
 
             bipartiteData = new Bipartite(trajectoryData);  //一、取得建立bipartiteData的分群資料以及投影關聯
         }
@@ -64,7 +64,7 @@ public class Main {
         System.out.println("1.建立bipartite graph的時間：" + (createBipartiteGraphEndTime - createBipartiteGraphStartTime) + "ms");
         System.out.println("2.建完bipartite graph後，一直到最終結束所花的時間：" + (programEndTime - createBipartiteGraphEndTime) + "ms");
         System.out.println("3.計算gain的總次數：" + gain + "次");
-        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
+//        System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；" + trajectoryData);
         System.out.println("4.最後有多少 #trajectories：\t" + TrajectoriesCount(trajectoryData) + "個；");
 //        System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；" + getTrajectoryData(inputFileName));
         System.out.println("5.原始 #trajectories：\t\t" + TrajectoriesCount(getTrajectoryData(inputFileName)) + "個；");
@@ -111,7 +111,7 @@ public class Main {
     /*
      * 掃描待檢查組合項目找出最大Ugain數值
      * */
-    private static void findMaxUgainPart(ArrayList<LinkedList<LinkedList<String>>> checkPartList, HashMap<String, LinkedList<String>> trajectoryData, Bipartite bipartiteData, FindPP findOrgPP, float Pbr) {
+    private static int findMaxUgainPart(ArrayList<LinkedList<LinkedList<String>>> checkPartList, HashMap<String, LinkedList<String>> trajectoryData, Bipartite bipartiteData, FindPP findOrgPP, float Pbr) {
         HashMap<LinkedList<LinkedList<String>>, HashSet<String>> chang_t = new HashMap<>();  //每個檢查點需計算的t項目
         HashMap<LinkedList<LinkedList<String>>, Float> checkPart_upperMap = new HashMap<>();  //每個檢查點的upper的數值
         ArrayList<LinkedList<LinkedList<String>>> max_upperCheckPart = new ArrayList<>();  //紀錄擁有最大upper的CheckPart組合，由於可能會有一樣的，因此使用ArrayList儲存
@@ -120,6 +120,7 @@ public class Main {
         float max_upper = (float) -1.0;
         float max_upperForUgain = (float) -1.0;  //找出最大upper組合中，最大的Ugain數值
         float maxU_gain = (float) -1.0;
+        int ugin;
 
         // 掃描所有關聯
         checkPartList.forEach((checkPart) -> {
@@ -161,7 +162,7 @@ public class Main {
                 float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
                 DenominatorData += (1.0f - ((denominatorMolecular * (denominatorMolecular - 1.0f)) / (denominatorDenominator * (denominatorDenominator - 1.0f))));
                 if (Float.isNaN(DenominatorData)) {
-                    DenominatorData = 0.0f;
+                    DenominatorData = 1.0f;
                 }
 //                System.out.println("測試：" + 0.0f + (1.0f - ((0.0f * (0.0f - 1.0f)) / (1.0f * (1.0f - 1.0f)))));
             }
@@ -180,7 +181,7 @@ public class Main {
             }
 
         }
-//        System.out.println(checkPart_upperMap.size());
+
         // 計算最大upper組合中的ugain，找出最大的ugain
         for (LinkedList<LinkedList<String>> checkPart : max_upperCheckPart) {
             float DenominatorData = (float) 0;  //公式中分母的計算累加值
@@ -209,8 +210,8 @@ public class Main {
                 checkPart_upperMap_KeySet.add(checkPart_upperMap_Key);
             }
         }
-//        System.out.println(checkPart_upperMap_KeySet.size());
-//        System.out.println("-------------");
+
+        ugin = checkPart_upperMap_KeySet.size();  //計算真正刪除後的Ugain數量
         // 重新計算找出真正最大的ugain組合
         for (LinkedList<LinkedList<String>> checkPart : checkPart_upperMap_KeySet) {
             float DenominatorData = (float) 0;  //公式中分母的計算累加值
@@ -224,7 +225,7 @@ public class Main {
                 float denominatorDenominator = trajectoryData.get(T_unifyingPerson_t).size();
                 DenominatorData += (1 - ((denominatorMolecular * (denominatorMolecular - 1)) / (denominatorDenominator * (denominatorDenominator - 1))));
                 if (Float.isNaN(DenominatorData)) {
-                    DenominatorData = 0.0f;
+                    DenominatorData = 1.0f;
                 }
             }
             U_gain = ((float) (findOrgPP.problematicTotal - findLoopPP.problematicTotal) / findOrgPP.problematicTotal) * ((float) 1 / DenominatorData);
@@ -240,6 +241,7 @@ public class Main {
         //更新原始軌跡表 (若看不懂，參見v2 到最後才加入空集合 + 不跟原先的計算項目數值做檢查是否包含的版本 中的456行)
         bipartiteData.biT.get(maxCheckPart.get(0)).forEach((updateTrajectoriesTaleKey) -> bipartiteData.unifying.forEach((removeItem) -> trajectoryData.get(updateTrajectoriesTaleKey).removeIf(s -> s.equals(removeItem))));
 
+        return ugin;
     }
 
     /*
